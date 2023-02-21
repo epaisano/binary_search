@@ -1,23 +1,13 @@
 #!/bin/python3
-'''
-JOKE: There are 2 hard problems in computer science: cache invalidation, naming things, and off-by-1 errors.
 
-It's really easy to have off-by-1 errors in these problems.
-Pay very close attention to your list indexes and your < vs <= operators.
-'''
+import numpy as np
+
 
 def find_smallest_positive(xs):
     '''
     Assume that xs is a list of numbers sorted from LOWEST to HIGHEST.
     Find the index of the smallest positive number.
     If no such index exists, return `None`.
-
-    HINT: 
-    This is essentially the binary search algorithm from class,
-    but you're always searching for 0.
-
-    APPLICATION:
-    This is a classic question for technical interviews.
 
     >>> find_smallest_positive([-3, -2, -1, 0, 1, 2, 3])
     4
@@ -26,6 +16,86 @@ def find_smallest_positive(xs):
     >>> find_smallest_positive([-3, -2, -1]) is None
     True
     '''
+    if len(xs) == 0:
+        return None
+
+    if xs[0] < 0 and xs[-1] < 0:
+        return None
+
+    def go(left, right):
+        if left == right:
+            if xs[left] == 0:
+                return None
+            if xs[left] > 0:
+                return left
+
+        mid = (left+right) // 2
+        if xs[mid] > 0:
+            right = mid
+        if xs[mid] < 0:
+            left = mid + 1
+        if xs[mid] == 0:
+            return mid + 1
+            left = mid + 1
+        return go(left, right)
+
+    return go(0, len(xs) - 1)
+
+
+def bin_lowindex(xs, x):
+    '''
+    Assume xs is a list of numbers sorted from HIGHEST to LOWEST,
+    and that x is a number.
+    Find the lowest index with a value >= x.
+
+    >>> bin_lowindex([5, 4, 3, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0], 5)
+    0
+    >>> bin_lowindex([5, 4, 3, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0], 0)
+    8
+    '''
+    left = 0
+    right = len(xs) - 1
+    pos = -1
+
+    while (left <= right):
+        mid = (left + right) // 2
+        if xs[mid] > x:
+            left = mid + 1
+        elif xs[mid] < x:
+            right = mid - 1
+
+        else:
+            pos = mid
+            right = mid - 1
+    return pos
+
+
+def bin_highindex(xs, x):
+    '''
+    Assume xs is a list of numbers sorted from HIGHEST to LOWEST,
+    and that x is a number.
+    Find the lowest index with a value >= x.
+
+    >>> bin_highindex([5, 4, 3, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0], 2)
+    8
+    >>> bin_highindex([5, 4, 3, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0], 0)
+    12
+    '''
+    left = 0
+    right = len(xs) - 1
+    pos = -1
+    while (left <= right):
+        mid = (left + right) // 2
+
+        if xs[mid] > x:
+            left = mid + 1
+        elif xs[mid] < x:
+            right = mid - 1
+
+        else:
+            pos = mid
+            left = mid + 1
+    return pos
 
 
 def count_repeats(xs, x):
@@ -34,53 +104,34 @@ def count_repeats(xs, x):
     and that x is a number.
     Calculate the number of times that x occurs in xs.
 
-    HINT: 
-    Use the following three step procedure:
-        1) use binary search to find the lowest index with a value >= x
-        2) use binary search to find the lowest index with a value < x
-        3) return the difference between step 1 and 2
-    I highly recommend creating stand-alone functions for steps 1 and 2,
-    and write your own doctests for these functions.
-    Then, once you're sure these functions work independently,
-    completing step 3 will be easy.
-
-    APPLICATION:
-    This is a classic question for technical interviews.
-
     >>> count_repeats([5, 4, 3, 3, 3, 3, 3, 3, 3, 2, 1], 3)
     7
     >>> count_repeats([3, 2, 1], 4)
     0
     '''
+    if x not in xs:
+        return 0
+
+    upper = bin_highindex(xs, x)
+    lower = bin_lowindex(xs, x)
+    if xs[0] == xs[-1]:
+        return len(xs)
+    if upper == lower:
+        return 1
+    if lower == 0:
+        return upper - lower
+    else:
+        newupper = upper + 1
+        return newupper - lower
 
 
 def argmin(f, lo, hi, epsilon=1e-3):
     '''
-    Assumes that f is an input function that takes a float as input and returns a float with a unique global minimum,
+    Assumes that f is an input function that takes a float as
+    input and returns a float with a unique global minimum,
     and that lo and hi are both floats satisfying lo < hi.
-    Returns a number that is within epsilon of the value that minimizes f(x) over the interval [lo,hi]
-
-    HINT:
-    The basic algorithm is:
-        1) The base case is when hi-lo < epsilon
-        2) For each recursive call:
-            a) select two points m1 and m2 that are between lo and hi
-            b) one of the 4 points (lo,m1,m2,hi) must be the smallest;
-               depending on which one is the smallest, 
-               you recursively call your function on the interval [lo,m2] or [m1,hi]
-
-    APPLICATION:
-    Essentially all data mining algorithms are just this argmin implementation in disguise.
-    If you go on to take the data mining class (CS145/MATH166),
-    we will spend a lot of time talking about different f functions that can be minimized and their applications.
-    But the actual minimization code will all be a variant of this binary search.
-
-    WARNING:
-    The doctests below are not intended to pass on your code,
-    and are only given so that you have an example of what the output should look like.
-    Your output numbers are likely to be slightly different due to minor implementation details.
-    Writing tests for code that uses floating point numbers is notoriously difficult.
-    See the pytests for correct examples.
+    Returns a number that is within epsilon of the value that
+    minimizes f(x) over the interval [lo,hi]
 
     >>> argmin(lambda x: (x-5)**2, -20, 20)
     5.000040370009773
@@ -88,15 +139,40 @@ def argmin(f, lo, hi, epsilon=1e-3):
     -0.00016935087808430278
     '''
 
+    def find_min(lo, hi):
 
-################################################################################
+        if (hi - lo) < epsilon:
+            return lo
+
+        m1 = np.random.uniform(lo, ((hi+lo)/2))
+        m2 = np.random.uniform(((lo+hi)/2), hi)
+        xs = [f(lo), f(m1), f(m2), f(hi)]
+
+        if min(xs) == xs[0]:
+            return find_min(lo, m2)
+
+        if min(xs) == xs[1]:
+            return find_min(lo, m2)
+
+        if min(xs) == xs[2]:
+            return find_min(m1, hi)
+
+        if min(xs) == xs[3]:
+            return find_min(m1, hi)
+
+        return find_min(lo, hi)
+    return find_min(lo, hi)
+
+
+######################################
 # the functions below are extra credit
-################################################################################
+#####################################
 
 def find_boundaries(f):
     '''
     Returns a tuple (lo,hi).
-    If f is a convex function, then the minimum is guaranteed to be between lo and hi.
+    If f is a convex function, then the minimum is
+    guaranteed to be between lo and hi.
     This function is useful for initializing argmin.
 
     HINT:
@@ -113,7 +189,8 @@ def find_boundaries(f):
 
 def argmin_simple(f, epsilon=1e-3):
     '''
-    This function is like argmin, but it internally uses the find_boundaries function so that
+    This function is like argmin, but it internally
+    uses the find_boundaries function so that
     you do not need to specify lo and hi.
 
     NOTE:
