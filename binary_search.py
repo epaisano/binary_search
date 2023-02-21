@@ -29,7 +29,7 @@ def find_smallest_positive(xs):
             if xs[left] > 0:
                 return left
 
-        mid = (left+right) // 2
+        mid = (left + right) // 2
         if xs[mid] > 0:
             right = mid
         if xs[mid] < 0:
@@ -144,8 +144,8 @@ def argmin(f, lo, hi, epsilon=1e-3):
         if (hi - lo) < epsilon:
             return lo
 
-        m1 = np.random.uniform(lo, ((hi+lo)/2))
-        m2 = np.random.uniform(((lo+hi)/2), hi)
+        m1 = np.random.uniform(lo, ((hi + lo)/2))
+        m2 = np.random.uniform(((lo + hi)/2), hi)
         xs = [f(lo), f(m1), f(m2), f(hi)]
 
         if min(xs) == xs[0]:
