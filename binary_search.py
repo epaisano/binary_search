@@ -174,48 +174,20 @@ def find_boundaries(f):
     If f is a convex function, then the minimum is
     guaranteed to be between lo and hi.
     This function is useful for initializing argmin.
-
-    HINT:
-    Begin with initial values lo=-1, hi=1.
-    Let mid = (lo+hi)/2
-    if f(lo) > f(mid):
-        recurse with lo*=2
-    elif f(hi) < f(mid):
-        recurse with hi*=2
-    else:
-        you're done; return lo,hi
-    '''
-
+   '''
     def go(lo, hi):
-        mid = (lo+hi)/2
+        mid = (lo + hi) / 2
         if f(lo) < f(mid):
-            lo = lo*2
+            lo = lo * 2
             return go(lo, hi)
         elif f(hi) < f(mid):
-            hi = hi*2
-            return go(lo,hi)
+            hi = hi * 2
+            return go(lo, hi)
 
         else:
-            return lo,hi
-    return go(-1,1)
+            return lo, hi
+    return go(-1, 1)
 
-
-'''    
-    lo = -1 
-    hi = 1
-
-    while (lo <= hi):
-        mid = (lo + hi) / 2
-        if (f(lo) < f(mid)):
-            lo *= 2
-        elif (f(hi) < f(mid)):
-            hi *= 2
-
-        else:
-            return lo,hi
-        return lo,hi
-    return lo,hi
-'''
 
 def argmin_simple(f, epsilon=1e-3):
     '''
