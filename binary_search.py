@@ -186,6 +186,36 @@ def find_boundaries(f):
         you're done; return lo,hi
     '''
 
+    def go(lo, hi):
+        mid = (lo+hi)/2
+        if f(lo) < f(mid):
+            lo = lo*2
+            return go(lo, hi)
+        elif f(hi) < f(mid):
+            hi = hi*2
+            return go(lo,hi)
+
+        else:
+            return lo,hi
+    return go(-1,1)
+
+
+'''    
+    lo = -1 
+    hi = 1
+
+    while (lo <= hi):
+        mid = (lo + hi) / 2
+        if (f(lo) < f(mid)):
+            lo *= 2
+        elif (f(hi) < f(mid)):
+            hi *= 2
+
+        else:
+            return lo,hi
+        return lo,hi
+    return lo,hi
+'''
 
 def argmin_simple(f, epsilon=1e-3):
     '''
